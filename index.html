@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Global Food Ashton</title>
+<meta name="description" content="Global Food Ashton - your family supermarket. Halal meat, fresh produce, groceries, frozen food, rice & atta, drinks and household essentials.">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#f5f7f5;font-family:Arial,Helvetica,sans-serif;color:#172019}
+body{min-height:100vh}
+.master{width:100%;background:white}
+.master img{display:block;width:100%;height:auto}
+.mobile-actions{display:none}
+.shop-panel{max-width:1536px;margin:auto;background:#fff;padding:28px 18px 50px}
+.shop-panel h2{margin:0 0 8px;color:#075f36}
+.shop-panel p{margin:0 0 20px;color:#66746b}
+.products{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{border:1px solid #e2e8e4;border-radius:12px;padding:15px;background:white}
+.card b{display:block;min-height:38px}.price{font-size:23px;color:#e31e24;font-weight:900;margin:8px 0}
+.card button{width:100%;border:0;background:#f2c600;padding:10px;border-radius:6px;font-weight:900;cursor:pointer}
+.floating-cart{position:fixed;right:20px;bottom:20px;border:0;background:#08783f;color:white;border-radius:999px;padding:14px 20px;font-weight:900;box-shadow:0 8px 25px #0004;z-index:5;cursor:pointer}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:min(430px,100%);background:white;z-index:20;transform:translateX(100%);transition:.2s;padding:20px;overflow:auto;box-shadow:-10px 0 30px #0002}.drawer.open{transform:none}
+.overlay{display:none;position:fixed;inset:0;background:#0008;z-index:19}.line{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid #e5e9e6}.checkout{width:100%;border:0;background:#08783f;color:white;padding:13px;border-radius:7px;font-weight:900;cursor:pointer}
+@media(max-width:700px){
+ .master{overflow:auto}
+ .master img{width:1050px;max-width:none}
+ .mobile-actions{display:flex;position:sticky;top:0;z-index:4;background:#075f36;color:white;justify-content:space-between;padding:10px 12px;font-weight:800}
+ .products{grid-template-columns:repeat(2,1fr)}
+ .shop-panel{padding-top:22px}
+}
+</style>
+</head>
+<body>
+
+<div class="mobile-actions"><span>GLOBAL FOOD ASHTON</span><span>☎ 0161 843 7794</span></div>
+
+<!-- This exact supplied design is now the visible homepage -->
+<div class="master">
+  <img src="assets/global-food-ashton-master-homepage.jpg" alt="Global Food Ashton online supermarket">
+</div>
+
+<section class="shop-panel" id="online-shop">
+  <h2>Online Ordering</h2>
+  <p>The design above is the master homepage. Use the working products below to add items to your basket while the full catalogue is connected.</p>
+  <div class="products" id="products"></div>
+</section>
+
+<button class="floating-cart" onclick="openCart()">🛒 Basket (<span id="count">0</span>)</button>
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<aside class="drawer" id="drawer">
+ <button onclick="closeCart()" style="float:right">✕</button>
+ <h2>Your Basket</h2>
+ <div id="lines"></div>
+ <h3>Total: £<span id="total">0.00</span></h3>
+ <button class="checkout" onclick="order()">Order via WhatsApp</button>
+</aside>
+
+<script>
+const P=[
+{id:1,n:"Elephant Atta 25kg",p:16.99},
+{id:2,n:"Tilda Basmati Rice 10kg",p:19.99},
+{id:3,n:"Chicken Fillet 1kg",p:6.99},
+{id:4,n:"Lamb Leg / Shoulder 1kg",p:14.99},
+{id:5,n:"Fatima's Punjabi Samosas 20s",p:6.99},
+{id:6,n:"Coca Cola 1.5L",p:1.95},
+{id:7,n:"Heera Chakki Atta 10kg",p:8.99},
+{id:8,n:"DM Aloo Samosas",p:3.99},
+{id:9,n:"Lamb Chops / Back Chops 1kg",p:14.49},
+{id:10,n:"Lamb Neck 1kg",p:10.99},
+{id:11,n:"Mixed Keema 1kg",p:12.99},
+{id:12,n:"Pepsi 2L",p:2.49}
+];
+let C=JSON.parse(localStorage.getItem("gfa_exact_cart")||"{}");
+function renderProducts(){document.getElementById("products").innerHTML=P.map(x=>`<div class="card"><b>${x.n}</b><div class="price">£${x.p.toFixed(2)}</div><button onclick="add(${x.id})">🛒 Add to Basket</button></div>`).join("")}
+function add(id){C[id]=(C[id]||0)+1;save();openCart()}
+function save(){localStorage.setItem("gfa_exact_cart",JSON.stringify(C));renderCart()}
+function renderCart(){let a=Object.entries(C).map(([id,q])=>({x:P.find(p=>p.id==id),q})).filter(z=>z.x);let t=a.reduce((s,z)=>s+z.x.p*z.q,0);document.getElementById("count").textContent=a.reduce((s,z)=>s+z.q,0);document.getElementById("total").textContent=t.toFixed(2);document.getElementById("lines").innerHTML=a.length?a.map(z=>`<div class="line"><span>${z.q} × ${z.x.n}</span><b>£${(z.x.p*z.q).toFixed(2)}</b></div>`).join(""):"<p>Basket is empty.</p>"}
+function openCart(){document.getElementById("drawer").classList.add("open");document.getElementById("overlay").style.display="block"}
+function closeCart(){document.getElementById("drawer").classList.remove("open");document.getElementById("overlay").style.display="none"}
+function order(){let a=Object.entries(C).map(([id,q])=>({x:P.find(p=>p.id==id),q})).filter(z=>z.x);if(!a.length)return alert("Basket is empty");let t=a.reduce((s,z)=>s+z.x.p*z.q,0);let m="GLOBAL FOOD ASHTON ORDER\n\n"+a.map(z=>`${z.q} x ${z.x.n} - £${(z.x.p*z.q).toFixed(2)}`).join("\n")+`\n\nTOTAL £${t.toFixed(2)}\nPlease confirm stock and delivery/collection.`;window.open("https://wa.me/441618437794?text="+encodeURIComponent(m),"_blank")}
+renderProducts();renderCart();
+</script>
+</body>
+</html>
